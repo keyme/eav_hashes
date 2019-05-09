@@ -51,11 +51,11 @@ class EavMigrationGenerator < ActiveRecord::Generators::Base
   end
 
   def key_table_name
-    "#{custom_table_name || "#{name}_#{hash_name}".singularize.underscore.gsub(/\//, '_')}_keys"
+    "#{custom_table_name || "#{name}_#{hash_name}".underscore.gsub(/\//, '_')}_keys"
   end
 
   def version_table_name
-    "#{custom_table_name || "#{name}_#{hash_name}".singularize.underscore.gsub(/\//, '_')}_versions"
+    "#{custom_table_name || "#{name}_#{hash_name}".underscore.gsub(/\//, '_')}_versions"
   end
 
   def model_name

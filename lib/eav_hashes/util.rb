@@ -15,11 +15,11 @@ module ActiveRecord
 
         # Generate a unique class name based on the eav_hash's name and owner
         options[:entry_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name]}_entry".camelize.to_sym
-        options[:key_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s.singularize}_key".camelize.to_sym
+        options[:key_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key".camelize.to_sym
         options[:paper_trail_abstract_class] ||= "PaperTrail::Version".camelize.to_sym
         options[:version_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name]}_version".camelize.to_sym
         
-        options[:key_table_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s.singularize}_key".tableize.to_sym
+        options[:key_table_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key".tableize.to_sym
 
         # Strip "_entries" from the table name
         if /Entry$/.match options[:entry_class_name]
