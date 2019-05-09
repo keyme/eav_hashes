@@ -1,7 +1,7 @@
-class CreateProductTechSpecKeys < ActiveRecord::Migration[5.0]
+class CreateProductTechSpecsKeys < ActiveRecord::Migration[5.0]
 	
 	def change
-		create_table :product_tech_spec_keys do |t|
+		create_table :product_tech_specs_keys do |t|
 			t.string :key_name
 			t.string :display_name
 			t.string :original_name

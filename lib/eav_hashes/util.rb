@@ -60,23 +60,12 @@ module ActiveRecord
       def self.create_eav_key_class (options)
         sanity_check options
         
-        
-        puts "((((((((((((((((((((((((((((((((((((((((("
-        puts options
-        puts "((((((((((((((((((((((((((((((((((((((((("
-        
-        puts "options[:key_class_name]: #{options[:key_class_name]}"
-        
-        puts "class_from_string_exists?(options[:key_class_name]): #{class_from_string_exists?(options[:key_class_name])}"
-        
         # Don't overwrite an existing type
         return class_from_string(options[:key_class_name].to_s) if class_from_string_exists?(options[:key_class_name])
 
         # Create our type
         klass = set_constant_from_string options[:key_class_name].to_s, Class.new(ActiveRecord::Base)
         
-        puts "klass: #{klass}"
-
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_table_name]}"
@@ -110,19 +99,10 @@ module ActiveRecord
         
         # Don't overwrite an existing type
         # 
-
-        puts "options[:version_class_name].to_s: #{options[:version_class_name]}"
-        
-        
-        puts "class_from_string_exists?(options[:version_class_name]): #{class_from_string_exists?(options[:version_class_name])}"
-        
         return class_from_string(options[:version_class_name].to_s) if class_from_string_exists?(options[:version_class_name])
 
         # Create our type
         klass = set_constant_from_string options[:version_class_name].to_s, Class.new(PaperTrail::Version)
-
-
-        puts "klass: #{klass}"
 
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
@@ -136,11 +116,6 @@ module ActiveRecord
       def self.create_eav_table_class (options)
         sanity_check options
 
-        
-        puts "options[:entry_class_name]: #{options[:entry_class_name]}"
-        
-        puts "class_from_string_exists?(options[:entry_class_name]): #{class_from_string_exists?(options[:entry_class_name])}"
-        
         # Don't overwrite an existing type
         return class_from_string(options[:entry_class_name].to_s) if class_from_string_exists?(options[:entry_class_name])
 

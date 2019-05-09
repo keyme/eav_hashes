@@ -6,8 +6,8 @@ describe "EavHash/EavEntry" do
     let (:p2) { Product.find_by_name("Product 2") }
     let (:p3) { Product.find_by_name("Product 3") }
     
-    let (:key1) { ProductTechSpecKey.find_by_key_name("first_name") }
-    let (:key2) { ProductTechSpecKey.find_by_key_name("last_name") }
+    let (:key1) { ProductTechSpecsKey.find_by_key_name("first_name") }
+    let (:key2) { ProductTechSpecsKey.find_by_key_name("last_name") }
 
     it "deletes an EAV row when its value is set to nil" do
         p3_id = p3.id

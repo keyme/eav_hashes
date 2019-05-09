@@ -16,7 +16,7 @@ p.name = "Product 1"
   ["symbolic_key", :symbolic_key],
   ["only_in_product_2", :only_in_product_2]
 ].each do |key, display|
-  ProductTechSpecKey.create(key_name: key, display_name: display)
+  ProductTechSpecsKey.create(key_name: key, display_name: display)
 end
 
 
@@ -42,8 +42,8 @@ p2.name = "Product 2"
 (p2.tech_specs << p.tech_specs) << { "only_in_product_2" => :relish_it_all }
 
 
-ProductTechSpecKey.create(key_name: "first_name", display_name: "First Name")
-ProductTechSpecKey.create(key_name: "last_name", display_name: "Last Name")
+ProductTechSpecsKey.create(key_name: "first_name", display_name: "First Name")
+ProductTechSpecsKey.create(key_name: "last_name", display_name: "Last Name")
 
 
 p3 = Product.new

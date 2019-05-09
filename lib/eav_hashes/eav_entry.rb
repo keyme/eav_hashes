@@ -15,6 +15,7 @@ module ActiveRecord
       before_save :serialize_value
 
       # Let the key be assignable only once on creation
+      # attr_readonly :entry_key
       attr_readonly :entry_key
 
       # Contains the values the value_type column should have based on the type of the value being stored
