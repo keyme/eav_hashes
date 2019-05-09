@@ -61,6 +61,10 @@ module ActiveRecord
         sanity_check options
         
         
+        puts "((((((((((((((((((((((((((((((((((((((((("
+        puts options
+        puts "((((((((((((((((((((((((((((((((((((((((("
+        
         puts "options[:key_class_name]: #{options[:key_class_name]}"
         
         puts "class_from_string_exists?(options[:key_class_name]): #{class_from_string_exists?(options[:key_class_name])}"
