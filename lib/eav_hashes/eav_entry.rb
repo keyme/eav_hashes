@@ -54,7 +54,7 @@ module ActiveRecord
 
 
       def key
-        k = read_attribute :entry_key
+        k = read_attribute(:entry_key).downcase.underscore.to_sym
         (read_attribute :symbol_key) ? k.to_sym : k
       end
 

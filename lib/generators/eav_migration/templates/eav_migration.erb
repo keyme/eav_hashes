@@ -2,6 +2,7 @@ class <%= migration_name %> < ActiveRecord::Migration
   def change
     create_table :<%= table_name %> do |t|
       t.references :<%= model_association_name %>, :null => false
+      t.references :<%= key_model_association_name %>, :null => false
       t.string :entry_key, :null => false
       t.text :value, :null => false
       t.integer :value_type, :null => false

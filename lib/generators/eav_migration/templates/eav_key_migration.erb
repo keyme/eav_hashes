@@ -1,0 +1,13 @@
+class <%= key_migration_name %> < ActiveRecord::Migration
+  def change
+    create_table :<%= key_table_name %> do |t|
+      t.string :key_name, :null => false
+      t.string :display_name, :null => false
+      t.string :original_name, :null => false
+      t.text :description
+      t.boolean :enabled, :null => false, :default => true
+
+      t.timestamps
+    end
+  end
+end

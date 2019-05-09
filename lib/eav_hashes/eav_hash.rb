@@ -8,6 +8,7 @@ module ActiveRecord
       # @param [Hash] options the options hash which eav_hash generated
       def initialize(owner, options)
         Util::sanity_check options
+        
         @owner = owner
         @options = options
       end
@@ -32,6 +33,7 @@ module ActiveRecord
       def [](key)
         raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
         load_entries_if_needed
+        key = Util.clean_up_key(key)
         return @entries[key].value if @entries[key]
         nil
       end
@@ -47,6 +49,8 @@ module ActiveRecord
       # fight the power and stick it to the man by implementing it.
       # @param [Hash, EavHash] dirt the dirt to shovel (ba dum, tss)
       def <<(dirt)
+
+        dirt = validate_keys(dirt) unless dirt.blank?
         if dirt.is_a? Hash
           dirt.each do |key, value|
             update_or_create_entry key, value
@@ -155,6 +159,23 @@ module ActiveRecord
         end
 
         @entries
+      end
+      
+      def validate_keys(data)
+        if data.is_a? Hash
+          puts "H"
+          data = data.inject({}){|memo,(k,v)| memo[k.downcase.to_sym] = v; memo}
+        elsif data.is_a? EavHash
+          puts "EavHash: data: #{data.inspect}"
+        end
+
+        provided_keys = data.keys
+        existing_keys = @options[:key_class].pluck(:key_name).map(&:to_sym)
+        
+        missing_keys = (provided_keys - existing_keys)
+        raise "Keys must already have been defined. Missing Keys: #{missing_keys}" unless missing_keys.empty? 
+        
+        data
       end
 
       # Sets an entry's owner ID. This is called when we save attributes for a model which has just been
