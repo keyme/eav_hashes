@@ -126,20 +126,14 @@ module ActiveRecord
 
       # Take the crap out of #inspect calls
       def inspect
-        puts "VBDEFDFD"
         as_hash
       end
 
     private
       def update_or_create_entry(key, value)
-        puts "hello nurse"
         raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
-        puts "A"
-        
         
         key = @options[:key_class].find_by(key_name: key)
-        
-        puts "key: #{key}"
         
         load_entries_if_needed
 
@@ -152,32 +146,14 @@ module ActiveRecord
         else
           puts "C"
           
-          puts "key: #{key}"
-          puts "D"
-          
-          puts "@options[:entry_class]: #{@options[:entry_class]}"
-          puts "E"
           new_entry = @options[:entry_class].new
-          puts "F"
           set_entry_owner(new_entry)
-          puts "G"
-          new_entry.key = key.id.to_s
+          new_entry.key = key.key_name
           new_entry.symbol_key = true
-          puts 'H'
           new_entry.value = value
-          puts "I"
-          
           new_entry.send("#{@options[:key_assoc_name]}_id=".to_sym, key.id)
-          
-          puts "J"
-
           @entries[key] = new_entry
           
-          puts "new_entry: #{new_entry.inspect}"
-          puts new_entry.product_tech_specs_key.inspect
-          
-          puts "value: #{value}"
-
           value
         end
       end

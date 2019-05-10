@@ -11,8 +11,6 @@ module ActiveRecord
       # Fills in any options not explicitly passed to eav_hash_for and creates an EavEntry type for the table
       # @param [Hash] options the options hash to be filled with defaults on unset keys.
       def self.fill_options_hash(options)
-        puts "1001"
-
         sanity_check options
 
         # Generate a unique class name based on the eav_hash's name and owner
@@ -148,14 +146,12 @@ module ActiveRecord
           attr_readonly :#{options[:key_assoc_name]}_id
     
           def key
-puts "Timothy Drake"
             k = #{options[:key_class_name]}read_attribute(:entry_key).downcase.underscore.to_sym
             (read_attribute :symbol_key) ? k.to_sym : k
           end
     
           # Raises an error if you try changing the key (unless no key is set)
           def key= (val)
-puts "Cassie Sandsmark"
             raise "Keys are immutable!" if read_attribute(:entry_key)
             raise "Key must be a string!" unless val.is_a?(String) or val.is_a?(Symbol)
             write_attribute :entry_key, val.to_s
@@ -174,7 +170,6 @@ puts "Cassie Sandsmark"
       # @param [Object] value the value to search by. if this is nil, it will return all models which contain `key`
       # @param [Hash] options the options hash which eav_hash_for hash generated.
       def self.run_find_expression (key, value, options)
-        puts "Clark Kent"
         sanity_check options
         raise "Can't search for a nil key!" if key.nil?
         if value.nil?
@@ -202,7 +197,6 @@ puts "Cassie Sandsmark"
       # Find a class even if it's contained in one or more modules.
       # See http://stackoverflow.com/questions/3163641/get-a-class-by-name-in-ruby
       def self.class_from_string(str)
-        puts "Diana Prince"
         str.split('::').inject(Object) do |mod, class_name|
           mod.const_get(class_name)
         end
@@ -221,7 +215,6 @@ puts "Cassie Sandsmark"
       # Set a constant from a string, even if the string contains modules. Modules
       # are created if necessary.
       def self.set_constant_from_string(str, val)
-        puts "Ricky Martin"
         parent = str.deconstantize.split('::').inject(Object) do |mod, class_name|
           mod.const_defined?(class_name) ? mod.const_get(class_name) : mod.const_set(class_name, Module.new())
         end

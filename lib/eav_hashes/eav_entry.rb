@@ -49,10 +49,6 @@ module ActiveRecord
         @value = (val.nil? ? NilPlaceholder.new : val)
       end
 
-
-
-
-
       # Gets the value_type column's value for the type of value passed
       # @param [Object] val the object whose value_type to determine
       def self.get_value_type (val)

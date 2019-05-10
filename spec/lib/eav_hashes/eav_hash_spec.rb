@@ -52,7 +52,10 @@ p4.reload
       puts ProductTechSpecsEntry.last.inspect
       puts p4.inspect
       puts "getting them now"
-      p4.product_tech_specs_entries
+      p4.tech_specs
+      puts "last --------"
+      p4.tech_specs
+
     end
     
     it "ensures that keys are already defined" do
