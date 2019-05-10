@@ -138,11 +138,8 @@ module ActiveRecord
         @owner.updated_at = Time.now
 
         if @entries[key]
-          puts "B"
           @entries[key].value = value
         else
-          puts "C"
-          
           new_entry = @options[:entry_class].new
           set_entry_owner(new_entry)
           new_entry.key = key.key_name
