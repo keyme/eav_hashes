@@ -49,7 +49,7 @@ module ActiveRecord
       # fight the power and stick it to the man by implementing it.
       # @param [Hash, EavHash] dirt the dirt to shovel (ba dum, tss)
       def <<(dirt)
-
+        puts "dirt: #{dirt}"
         dirt = validate_keys(dirt) unless dirt.blank?
         if dirt.is_a? Hash
           dirt.each do |key, value|
@@ -68,11 +68,13 @@ module ActiveRecord
 
       # Gets the raw hash containing EavEntries by their keys
       def entries
+        puts "Yakko"
         load_entries_if_needed
       end
 
       # Gets the actual values this EavHash contains
       def values
+        puts "SupermanSS"
         load_entries_if_needed
 
         ret = []
@@ -85,6 +87,7 @@ module ActiveRecord
 
       # Gets the keys this EavHash manages
       def keys
+        puts 
         load_entries_if_needed
         @entries.keys
       end
@@ -111,6 +114,7 @@ module ActiveRecord
       # Returns a hash with each entry key mapped to its actual value,
       # not the internal EavEntry
       def as_hash
+        puts "VBSAd"
         load_entries_if_needed
         hsh = {}
         @entries.each do |k, entry|
@@ -122,26 +126,57 @@ module ActiveRecord
 
       # Take the crap out of #inspect calls
       def inspect
+        puts "VBDEFDFD"
         as_hash
       end
 
     private
       def update_or_create_entry(key, value)
+        puts "hello nurse"
         raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
+        puts "A"
+        
+        
+        key = @options[:key_class].find_by(key_name: key)
+        
+        puts "key: #{key}"
+        
         load_entries_if_needed
 
         @changes_made = true
         @owner.updated_at = Time.now
 
         if @entries[key]
+          puts "B"
           @entries[key].value = value
         else
+          puts "C"
+          
+          puts "key: #{key}"
+          puts "D"
+          
+          puts "@options[:entry_class]: #{@options[:entry_class]}"
+          puts "E"
           new_entry = @options[:entry_class].new
+          puts "F"
           set_entry_owner(new_entry)
-          new_entry.key = key
+          puts "G"
+          new_entry.key = key.id.to_s
+          new_entry.symbol_key = true
+          puts 'H'
           new_entry.value = value
+          puts "I"
+          
+          new_entry.send("#{@options[:key_assoc_name]}_id=".to_sym, key.id)
+          
+          puts "J"
 
           @entries[key] = new_entry
+          
+          puts "new_entry: #{new_entry.inspect}"
+          puts new_entry.product_tech_specs_key.inspect
+          
+          puts "value: #{value}"
 
           value
         end
@@ -154,25 +189,31 @@ module ActiveRecord
           @entries = {}
           rows_from_model = @owner.send("#{@options[:entry_assoc_name]}")
           rows_from_model.each do |row|
-            @entries[row.key] = row
+            puts "row: #{row}"
+            @entries[row.send(@options[:key_assoc_name]).key_name] = row
           end
         end
+        
+        puts "@entries: #{@entries}"
 
         @entries
       end
       
       def validate_keys(data)
         if data.is_a? Hash
-          puts "H"
-          data = data.inject({}){|memo,(k,v)| memo[k.downcase.to_sym] = v; memo}
+          puts "Hash: #{data}"
+          data = data.inject({}){|memo,(k,v)| memo[Util.clean_up_key(k)] = v; memo}
+
         elsif data.is_a? EavHash
           puts "EavHash: data: #{data.inspect}"
         end
 
         provided_keys = data.keys
-        existing_keys = @options[:key_class].pluck(:key_name).map(&:to_sym)
         
-        missing_keys = (provided_keys - existing_keys)
+        existing_keys = @options[:key_class].pluck(:key_name,:id)
+        existing_key_names = existing_keys.map {|x| x[0].to_sym}
+        
+        missing_keys = (provided_keys - existing_key_names)
         raise "Keys must already have been defined. Missing Keys: #{missing_keys}" unless missing_keys.empty? 
         
         data

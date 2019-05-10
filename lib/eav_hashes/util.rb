@@ -11,6 +11,8 @@ module ActiveRecord
       # Fills in any options not explicitly passed to eav_hash_for and creates an EavEntry type for the table
       # @param [Hash] options the options hash to be filled with defaults on unset keys.
       def self.fill_options_hash(options)
+        puts "1001"
+
         sanity_check options
 
         # Generate a unique class name based on the eav_hash's name and owner
@@ -69,10 +71,22 @@ module ActiveRecord
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_table_name]}"
+          before_save :prepare_key
           has_many :#{options[:entry_assoc_name]}, 
             class_name: "#{options[:entry_class_name]}", 
             foreign_key: "#{options[:key_assoc_name]}_id", 
             dependent: :delete_all
+
+          def prepare_key
+            return if key_name.nil?
+            self.original_name = key_name
+            placeholder = Util.clean_up_key(key_name)
+            self.key_name = placeholder
+          end
+          
+          def key_name
+             super.to_sym
+          end
         END_EVAL
 
         return klass
@@ -128,6 +142,26 @@ module ActiveRecord
           self.table_name = "#{options[:table_name]}"
           belongs_to :#{options[:parent_assoc_name]}
           belongs_to :#{options[:key_assoc_name]}
+
+          # Let the key be assignable only once on creation
+          # attr_readonly :entry_key
+          attr_readonly :#{options[:key_assoc_name]}_id
+    
+          def key
+puts "Timothy Drake"
+            k = #{options[:key_class_name]}read_attribute(:entry_key).downcase.underscore.to_sym
+            (read_attribute :symbol_key) ? k.to_sym : k
+          end
+    
+          # Raises an error if you try changing the key (unless no key is set)
+          def key= (val)
+puts "Cassie Sandsmark"
+            raise "Keys are immutable!" if read_attribute(:entry_key)
+            raise "Key must be a string!" unless val.is_a?(String) or val.is_a?(Symbol)
+            write_attribute :entry_key, val.to_s
+            write_attribute :symbol_key, (val.is_a? Symbol)
+          end
+
         END_EVAL
 
         return klass
@@ -140,11 +174,12 @@ module ActiveRecord
       # @param [Object] value the value to search by. if this is nil, it will return all models which contain `key`
       # @param [Hash] options the options hash which eav_hash_for hash generated.
       def self.run_find_expression (key, value, options)
+        puts "Clark Kent"
         sanity_check options
         raise "Can't search for a nil key!" if key.nil?
         if value.nil?
           options[:entry_class].where(
-              "entry_key = ? and symbol_key = ?",
+              "#{options[:key_assoc_name]}_id = ? and symbol_key = ?",
               key.to_s,
               key.is_a?(Symbol)
           ).pluck("#{options[:parent_assoc_name]}_id".to_sym)
@@ -154,7 +189,7 @@ module ActiveRecord
             raise "Can't search by Objects/Hashes/Arrays!"
           else
             options[:entry_class].where(
-                "entry_key = ? and symbol_key = ? and value = ? and value_type = ?",
+                "#{options[:key_assoc_name]}_id = ? and symbol_key = ? and value = ? and value_type = ?",
                 key.to_s,
                 key.is_a?(Symbol),
                 value.to_s,
@@ -167,6 +202,7 @@ module ActiveRecord
       # Find a class even if it's contained in one or more modules.
       # See http://stackoverflow.com/questions/3163641/get-a-class-by-name-in-ruby
       def self.class_from_string(str)
+        puts "Diana Prince"
         str.split('::').inject(Object) do |mod, class_name|
           mod.const_get(class_name)
         end
@@ -185,6 +221,7 @@ module ActiveRecord
       # Set a constant from a string, even if the string contains modules. Modules
       # are created if necessary.
       def self.set_constant_from_string(str, val)
+        puts "Ricky Martin"
         parent = str.deconstantize.split('::').inject(Object) do |mod, class_name|
           mod.const_defined?(class_name) ? mod.const_get(class_name) : mod.const_set(class_name, Module.new())
         end
@@ -192,7 +229,7 @@ module ActiveRecord
       end
       
       def self.clean_up_key(key)
-        key.to_s.downcase.underscore.gsub(" ", "_").to_sym
+        key.to_s.camelize.underscore.gsub(' ', '_').gsub('/', '_').to_sym
       end
     end
   end

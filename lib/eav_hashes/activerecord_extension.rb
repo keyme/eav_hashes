@@ -20,6 +20,8 @@ module ActiveRecord
           has_many :#{options[:entry_assoc_name]}, class_name: "#{options[:entry_class_name]}", foreign_key: "#{options[:parent_assoc_name]}_id", dependent: :delete_all
           after_save :save_#{hash_name}
           def #{hash_name}
+puts "blah blah blah"
+puts "hash_name: #{hash_name}"
             @#{hash_name} ||= ActiveRecord::EavHashes::EavHash.new(self, @@#{hash_name}_hash_options)
           end
 

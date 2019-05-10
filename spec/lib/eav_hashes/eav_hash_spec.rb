@@ -1,5 +1,25 @@
 require 'spec_helper'
 
+describe "Key Classes" do
+  it "converts keys to symbols" do
+    key_name = "KeyName"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    expect(key.key_name.is_a?(Symbol)).to be_truthy
+  end
+  
+  it "properly formats the key" do
+      key_name = "KeyMe/Test Card"
+      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+      expect(key.key_name).to eq(:key_me_test_card)
+  end
+  
+  it "preserves the original format of the key" do
+      key_name = "Key/Name"
+      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+      expect(key.original_name).to eq(key_name)
+  end
+end
+
 describe "EavHash/EavEntry" do
     # p[1-3] are defined in spec/dummy/db/seeds.rb and are used as fixtures
     let (:p1) { Product.find_by_name("Product 1") }
@@ -20,9 +40,25 @@ describe "EavHash/EavEntry" do
 
     end
     
+    it 'test' do
+      puts "Count: #{ProductTechSpecsEntry.count}"
+      p4 = Product.create(name: "TestProduct")
+      puts "p4: #{p4.inspect}"
+      p4.tech_specs << {a_string: "Blah"}
+      p4.save
+      puts "Count: #{ProductTechSpecsEntry.count}"
+p4.reload
+      puts "last --------"
+      puts ProductTechSpecsEntry.last.inspect
+      puts p4.inspect
+      puts "getting them now"
+      p4.product_tech_specs_entries
+    end
+    
     it "ensures that keys are already defined" do
       p4 = Product.create(name: "Tester")
       p4.tech_specs << { first_name: "Kermit", last_name: "Frog" }
+      p4.save
       expect { p4.tech_specs << { middle_name: "D" } }.
         to raise_error("Keys must already have been defined. Missing Keys: [:middle_name]")
     end
@@ -33,7 +69,7 @@ describe "EavHash/EavEntry" do
       p4.tech_specs << {first_name: "Jon", last_name: "Snow"}
       
       p4.save!
-
+      
       pt4 = ProductTechSpecsEntry.last
 
       p4.tech_specs << {last_name: "Stark"}
@@ -44,7 +80,6 @@ describe "EavHash/EavEntry" do
     it "is able to search for all models whose hashes contain a specified key" do
 #        Product.find_by_tech_specs("A String").length.should be == 2
         expect(Product.find_by_tech_specs("A String").length).to eq(2)
-
 #        Product.find_by_tech_specs(:only_in_product_2).length.should be == 1
         expect(Product.find_by_tech_specs(:only_in_product_2).length).to eq(1)
     end
