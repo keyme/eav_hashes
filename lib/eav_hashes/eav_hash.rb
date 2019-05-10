@@ -68,13 +68,11 @@ module ActiveRecord
 
       # Gets the raw hash containing EavEntries by their keys
       def entries
-        puts "Yakko"
         load_entries_if_needed
       end
 
       # Gets the actual values this EavHash contains
       def values
-        puts "SupermanSS"
         load_entries_if_needed
 
         ret = []
@@ -114,7 +112,6 @@ module ActiveRecord
       # Returns a hash with each entry key mapped to its actual value,
       # not the internal EavEntry
       def as_hash
-        puts "VBSAd"
         load_entries_if_needed
         hsh = {}
         @entries.each do |k, entry|
@@ -170,8 +167,6 @@ module ActiveRecord
           end
         end
         
-        puts "@entries: #{@entries}"
-
         @entries
       end
       
