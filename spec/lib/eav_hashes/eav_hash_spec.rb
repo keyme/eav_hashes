@@ -54,7 +54,7 @@ p4.reload
       puts "getting them now"
       p4.tech_specs
       puts "last --------"
-      p4.tech_specs
+      puts p4.tech_specs.inspect
 
     end
     

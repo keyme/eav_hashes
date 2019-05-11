@@ -50,14 +50,14 @@ module ActiveRecord
       # @param [Hash, EavHash] dirt the dirt to shovel (ba dum, tss)
       def <<(dirt)
         puts "dirt: #{dirt}"
-        dirt = validate_keys(dirt) unless dirt.blank?
+        validate_keys(dirt) unless dirt.blank?
         if dirt.is_a? Hash
           dirt.each do |key, value|
-            update_or_create_entry key, value
+            update_or_create_entry Util.clean_up_key(key), value
           end
         elsif dirt.is_a? EavHash
           dirt.entries.each do |key, entry|
-            update_or_create_entry key, entry.value
+            update_or_create_entry Util.clean_up_key(key), entry.value
           end
         else
           raise "You can't shovel something that's not a Hash or EavHash here!"
@@ -85,7 +85,6 @@ module ActiveRecord
 
       # Gets the keys this EavHash manages
       def keys
-        puts 
         load_entries_if_needed
         @entries.keys
       end
@@ -143,7 +142,7 @@ module ActiveRecord
           new_entry = @options[:entry_class].new
           set_entry_owner(new_entry)
           new_entry.key = key.key_name
-          new_entry.symbol_key = true
+          new_entry.symbol_key = key.key_name.is_a?(Symbol)
           new_entry.value = value
           new_entry.send("#{@options[:key_assoc_name]}_id=".to_sym, key.id)
           @entries[key] = new_entry
@@ -159,7 +158,6 @@ module ActiveRecord
           @entries = {}
           rows_from_model = @owner.send("#{@options[:entry_assoc_name]}")
           rows_from_model.each do |row|
-            puts "row: #{row}"
             @entries[row.send(@options[:key_assoc_name]).key_name] = row
           end
         end
@@ -169,9 +167,7 @@ module ActiveRecord
       
       def validate_keys(data)
         if data.is_a? Hash
-          puts "Hash: #{data}"
           data = data.inject({}){|memo,(k,v)| memo[Util.clean_up_key(k)] = v; memo}
-
         elsif data.is_a? EavHash
           puts "EavHash: data: #{data.inspect}"
         end

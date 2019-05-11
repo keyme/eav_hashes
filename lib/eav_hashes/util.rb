@@ -170,19 +170,27 @@ module ActiveRecord
       # @param [Object] value the value to search by. if this is nil, it will return all models which contain `key`
       # @param [Hash] options the options hash which eav_hash_for hash generated.
       def self.run_find_expression (key, value, options)
+        puts "A"
         sanity_check options
         raise "Can't search for a nil key!" if key.nil?
         if value.nil?
+          puts "B"
+          puts "key: #{key}"
+          puts "key.is_a?(Symbol): #{key.is_a?(Symbol)}"
+          puts options[:entry_class].all.map(&:entry_key)
           options[:entry_class].where(
               "#{options[:key_assoc_name]}_id = ? and symbol_key = ?",
               key.to_s,
               key.is_a?(Symbol)
           ).pluck("#{options[:parent_assoc_name]}_id".to_sym)
         else
+          puts "C"
           val_type = EavEntry.get_value_type value
           if val_type == EavEntry::SUPPORTED_TYPES[:Object]
+            puts "D"
             raise "Can't search by Objects/Hashes/Arrays!"
           else
+            puts "E"
             options[:entry_class].where(
                 "#{options[:key_assoc_name]}_id = ? and symbol_key = ? and value = ? and value_type = ?",
                 key.to_s,
