@@ -30,7 +30,7 @@ module ActiveRecord
       # Gets the value of an EAV attribute
       # @param [String, Symbol] key
       def [](key)
-        raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
+        key = @options[:key_class].find_by(key_name: Util.clean_up_key(key)).key_name
         load_entries_if_needed
         return @entries[key].value if @entries[key]
         nil
@@ -47,13 +47,14 @@ module ActiveRecord
       # fight the power and stick it to the man by implementing it.
       # @param [Hash, EavHash] dirt the dirt to shovel (ba dum, tss)
       def <<(dirt)
+        validate_keys(dirt) # unless dirt.blank?
         if dirt.is_a? Hash
           dirt.each do |key, value|
-            update_or_create_entry key, value
+            update_or_create_entry Util.clean_up_key(key), value
           end
         elsif dirt.is_a? EavHash
           dirt.entries.each do |key, entry|
-            update_or_create_entry key, entry.value
+            update_or_create_entry Util.clean_up_key(key), entry.value
           end
         else
           raise "You can't shovel something that's not a Hash or EavHash here!"
@@ -125,18 +126,21 @@ module ActiveRecord
       def update_or_create_entry(key, value)
         raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
         load_entries_if_needed
+        
+        key_object = @options[:key_class].find_by(key_name: Util.clean_up_key(key))
+
+        key_id = key.nil? ? nil : key_object.id
 
         @changes_made = true
         @owner.updated_at = Time.now
-
-        if @entries[key]
-          @entries[key].value = value
+        
+        if key && @entries[key_object.key_name]
+          @entries[key_object.key_name].value = value
         else
           new_entry = @options[:entry_class].new
           set_entry_owner(new_entry)
-          new_entry.key = key
+          new_entry.key = key_id
           new_entry.value = value
-
           @entries[key] = new_entry
 
           value
@@ -155,6 +159,20 @@ module ActiveRecord
         end
 
         @entries
+      end
+
+      def validate_keys(data)
+        if data.is_a? Hash
+          data = data.inject({}){|memo,(k,v)| memo[Util.clean_up_key(k)] = v; memo}
+        end
+
+        provided_keys = data.keys
+
+        existing_keys = @options[:key_class].pluck(:key_name,:id)
+        existing_key_names = existing_keys.map {|x| x[0].to_sym}
+
+        missing_keys = (provided_keys - existing_key_names)
+        raise "Keys must already have been defined. Missing Keys: #{missing_keys}" unless missing_keys.empty?
       end
 
       # Sets an entry's owner ID. This is called when we save attributes for a model which has just been

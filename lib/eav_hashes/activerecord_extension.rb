@@ -28,7 +28,7 @@ module ActiveRecord
           end
 
           def self.find_by_#{hash_name} (key, value=nil)
-            self.find (ActiveRecord::EavHashes::Util::run_find_expression(key, value, @@#{hash_name}_hash_options))
+            self.find (ActiveRecord::EavHashes::Util::run_find_expression(Util.clean_up_key(key), value, @@#{hash_name}_hash_options))
           end
         END_EVAL
       end

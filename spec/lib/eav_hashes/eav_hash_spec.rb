@@ -1,39 +1,115 @@
 require 'spec_helper'
 
+describe "Whitelist Key" do
+  it "ensures uniqueness of key_name" do
+    key_name = 'key/name'
+    ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    new_key = ProductTechSpecsKey.new(key_name: key_name, display_name: key_name)
+    expect(new_key).not_to be_valid
+  end
+  
+  it "converts keys to symbols" do
+    key_name = "KeyName"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    expect(key.key_name.is_a?(Symbol)).to be_truthy
+  end
+  
+  it "properly formats the key" do
+      key_name = "KeyMe/Test Card"
+      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+      expect(key.key_name).to eq(:key_me_test_card)
+  end
+  
+  it "preserves the original format of the key" do
+      key_name = "Key/Name"
+      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+      expect(key.original_name).to eq(key_name)
+  end
+  
+  it "handles spaces" do
+    key_name = "key name 2"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    expect(key.original_name).to eq(key_name.gsub(' ', '_'))
+  end
+  
+  it "handles deeply nested keys" do
+    key_name = "key/name/2"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    expect(key.original_name).to eq(key_name)
+
+    key_name = "milling/nets_success_rate.json/21/everest-unknown"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    expect(key.original_name).to eq(key_name)
+    expect(key.key_name).to eq('milling_nets_success_rate_json_21_everest_unknown'.to_sym)
+  end
+  
+  it 'on deletion it also removes any related entry' do
+    key_name = "key/name/1981"
+    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    product = Product.find_by_name("Product 1")
+    product.tech_specs << { "#{key_name}" => "nurse" }
+    product.save
+    
+    expect{ key.destroy }.to change{ ProductTechSpecsEntry.count }.by(-1)
+  end
+end
+
 describe "EavHash/EavEntry" do
     # p[1-3] are defined in spec/dummy/db/seeds.rb and are used as fixtures
     let (:p1) { Product.find_by_name("Product 1") }
     let (:p2) { Product.find_by_name("Product 2") }
     let (:p3) { Product.find_by_name("Product 3") }
+    
+    let (:key1) { ProductTechSpecsKey.find_by_key_name("first_name") }
+    let (:key2) { ProductTechSpecsKey.find_by_key_name("last_name") }
 
     it "deletes an EAV row when its value is set to nil" do
-        p3_id = p3.id
+      p3_id = p3.id
         p3.tech_specs[:delete_me] = nil
         p3.save!
 
         p3_pulled = Product.find_by_id(p3_id)
-#        p3_pulled.tech_specs.keys.length.should == 0
         expect(p3_pulled.tech_specs.keys.length).to eq(0)
-        
+    end
+    
+    it 'test' do
+      p4 = Product.new(name: "TestProduct")
+      p4.tech_specs << {"test/key" => "Blah"}
+      p4.save
+      p4.tech_specs << {a_string: "Blah2"}
+      p4.save
+    end
+    
+    it "ensures that keys are already defined" do
+      p4 = Product.create(name: "Tester")
+      p4.tech_specs << { first_name: "Kermit", last_name: "Frog" }
+      p4.save
+      expect { p4.tech_specs << { middle_name: "D" } }.
+        to raise_error("Keys must already have been defined. Missing Keys: [:middle_name]")
     end
 
+    it "keeps track of version changes" do
+      p4 = Product.new(name: "Tester")
+      p4.tech_specs << {first_name: "Jon", last_name: "Snow"}
+      p4.save!
+      
+      pt4 = ProductTechSpecsEntry.last
+      
+      p4.tech_specs << {last_name: "Stark"}
+      p4.save!
+      
+      expect(pt4.versions.count).to eq(2)
+    end
+    
     it "is able to search for all models whose hashes contain a specified key" do
-#        Product.find_by_tech_specs("A String").length.should be == 2
         expect(Product.find_by_tech_specs("A String").length).to eq(2)
 
-#        Product.find_by_tech_specs(:only_in_product_2).length.should be == 1
         expect(Product.find_by_tech_specs(:only_in_product_2).length).to eq(1)
     end
 
     describe "distinguishes between string and symbol keys" do
         it "finds a value for symbol key \":symbolic_key\" in Product 1" do
-#            p1.tech_specs[:symbolic_key].should_not be_nil
             expect(p1.tech_specs[:symbolic_key]).not_to be_nil
-        end
-
-        it "does not find a value for non-symbol key \"symbolic_key\" in Product 1" do
-#            p1.tech_specs["symbolic_key"].should be_nil
-            expect(p1.tech_specs["symbolic_key"]).to be_nil
         end
     end
 
