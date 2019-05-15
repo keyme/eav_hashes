@@ -69,7 +69,6 @@ describe "EavHash/EavEntry" do
         p3.save!
 
         p3_pulled = Product.find_by_id(p3_id)
-#        p3_pulled.tech_specs.keys.length.should == 0
         expect(p3_pulled.tech_specs.keys.length).to eq(0)
     end
     
@@ -103,23 +102,15 @@ describe "EavHash/EavEntry" do
     end
     
     it "is able to search for all models whose hashes contain a specified key" do
-#        Product.find_by_tech_specs("A String").length.should be == 2
         expect(Product.find_by_tech_specs("A String").length).to eq(2)
 
-#        Product.find_by_tech_specs(:only_in_product_2).length.should be == 1
         expect(Product.find_by_tech_specs(:only_in_product_2).length).to eq(1)
     end
 
     describe "distinguishes between string and symbol keys" do
         it "finds a value for symbol key \":symbolic_key\" in Product 1" do
-#            p1.tech_specs[:symbolic_key].should_not be_nil
             expect(p1.tech_specs[:symbolic_key]).not_to be_nil
         end
-# 
-#         it "does not find a value for non-symbol key \"symbolic_key\" in Product 1" do
-# #            p1.tech_specs["symbolic_key"].should be_nil
-#             expect(p1.tech_specs["symbolic_key"]).to be_nil
-#         end
     end
 
     describe "preserves types between serialization and deserialization" do
