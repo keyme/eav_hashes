@@ -14,9 +14,6 @@ module ActiveRecord
       # Tell ActiveRecord to convert the value to its DB storable format
       before_save :serialize_value
 
-      # Let the key be assignable only once on creation
-      attr_readonly :entry_key
-
       # Contains the values the value_type column should have based on the type of the value being stored
       SUPPORTED_TYPES = {
           :String     => 0,
@@ -50,20 +47,6 @@ module ActiveRecord
       # @param [Object] val the value
       def value= (val)
         @value = (val.nil? ? NilPlaceholder.new : val)
-      end
-
-
-      def key
-        k = read_attribute :entry_key
-        (read_attribute :symbol_key) ? k.to_sym : k
-      end
-
-      # Raises an error if you try changing the key (unless no key is set)
-      def key= (val)
-        raise "Keys are immutable!" if read_attribute(:entry_key)
-        raise "Key must be a string!" unless val.is_a?(String) or val.is_a?(Symbol)
-        write_attribute :entry_key, val.to_s
-        write_attribute :symbol_key, (val.is_a? Symbol)
       end
 
       # Gets the value_type column's value for the type of value passed
