@@ -18,7 +18,7 @@ module ActiveRecord
         options[:key_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key".camelize.to_sym
         options[:paper_trail_abstract_class] ||= "PaperTrail::Version".camelize.to_sym
         options[:version_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name]}_version".camelize.to_sym
-        
+
         options[:key_table_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key".tableize.to_sym
 
         # Strip "_entries" from the table name
@@ -32,7 +32,7 @@ module ActiveRecord
 
         # Create the symbol name for the "belongs_to" association in the entry model
         options[:parent_assoc_name] ||= "#{options[:parent_class_name].to_s.underscore}".to_sym
-        
+
         # Create the symbol name for the "belongs_to" association in the entry key model
         options[:key_assoc_name] ||= "#{options[:key_class_name].to_s.underscore}".to_sym
 
@@ -58,17 +58,18 @@ module ActiveRecord
       # Creates a new type subclassed from ActiveRecord:::EavEntry which represents an eav_hash key-value pair
       def self.create_eav_key_class (options)
         sanity_check options
-        
+
         # Don't overwrite an existing type
         return class_from_string(options[:key_class_name].to_s) if class_from_string_exists?(options[:key_class_name])
 
         # Create our type
         klass = set_constant_from_string options[:key_class_name].to_s, Class.new(ActiveRecord::Base)
-        
+
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_table_name]}"
-          validates :key_name, uniqueness: true
+          validates :key_name, uniqueness: true, presence: true
+          validates :display_name, presence: true
           before_validation :prepare_key
           has_many :#{options[:entry_assoc_name]}, 
             class_name: "#{options[:entry_class_name]}", 
@@ -89,7 +90,7 @@ module ActiveRecord
 
         return klass
       end
-      
+
       def self.create_paper_trail_abstract_class (options)
         sanity_check options
 
@@ -110,7 +111,7 @@ module ActiveRecord
         sanity_check options
 
         # Don't overwrite an existing type
-        # 
+        #
         return class_from_string(options[:version_class_name].to_s) if class_from_string_exists?(options[:version_class_name])
 
         # Create our type
@@ -216,7 +217,7 @@ module ActiveRecord
         end
         parent.const_set(str.demodulize.to_sym, val)
       end
-      
+
       def self.clean_up_key(key)
         key.to_s.underscore.gsub(' ', '_').gsub('/', '_').gsub('.', '_').to_sym
       end
