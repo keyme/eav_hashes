@@ -20,7 +20,7 @@ p.name = "Product 1"
   ["symbolic_key", :symbolic_key],
   ["only_in_product_2", :only_in_product_2]
 ].each do |key, display|
-  ProductTechSpecsKey.create(key_name: key, display_name: display)
+  ProductTechSpecsKey.create(config_key: key, display_name: display)
 end
 
 p.tech_specs << {

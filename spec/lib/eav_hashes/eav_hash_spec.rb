@@ -1,55 +1,65 @@
 require 'spec_helper'
 
-describe "Whitelist Key" do
-  it "ensures uniqueness of key_name" do
-    key_name = 'key/name'
-    ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-    new_key = ProductTechSpecsKey.new(key_name: key_name, display_name: key_name)
+describe ProductTechSpecsKey, type: :model do
+  it "ensures uniqueness of config_key" do
+    config_key = 'key/name'
+    ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    new_key = ProductTechSpecsKey.new(config_key: config_key, display_name: config_key)
     expect(new_key).not_to be_valid
   end
-  
-  it "converts keys to symbols" do
-    key_name = "KeyName"
-    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-    expect(key.key_name.is_a?(Symbol)).to be_truthy
-  end
-  
-  it "properly formats the key" do
-      key_name = "KeyMe/Test Card"
-      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-      expect(key.key_name).to eq(:key_me_test_card)
-  end
-  
-  it "preserves the original format of the key" do
-      key_name = "Key/Name"
-      key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-      expect(key.original_name).to eq(key_name)
-  end
-  
-  it "handles spaces" do
-    key_name = "key name 2"
-    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-    expect(key.original_name).to eq(key_name.gsub(' ', '_'))
-  end
-  
-  it "handles deeply nested keys" do
-    key_name = "key/name/2"
-    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-    expect(key.original_name).to eq(key_name)
 
-    key_name = "milling/nets_success_rate.json/21/everest-unknown"
-    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
-    expect(key.original_name).to eq(key_name)
-    expect(key.key_name).to eq('milling_nets_success_rate_json_21_everest_unknown'.to_sym)
+  it "ensures presence of config_key" do
+    new_key = ProductTechSpecsKey.new(config_key: nil, display_name: 'key')
+    expect(new_key).not_to be_valid
   end
-  
+
+  it "ensures presence of display_name" do
+    new_key = ProductTechSpecsKey.new(config_key: 'key', display_name: nil)
+    expect(new_key).not_to be_valid
+  end
+
+  it "converts keys to symbols" do
+    config_key = "KeyName"
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    expect(key.config_key.is_a?(Symbol)).to be_truthy
+  end
+
+  it "properly formats the key" do
+      config_key = "KeyMe/Test Card"
+      key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+      expect(key.config_key).to eq(:key_me_test_card)
+  end
+
+  it "preserves the original format of the key" do
+      config_key = "Key/Name"
+      key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+      expect(key.config_name).to eq(config_key)
+  end
+
+  it "handles spaces" do
+    config_key = "key name 2"
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    expect(key.config_name).to eq(config_key.gsub(' ', '_'))
+  end
+
+  it "handles deeply nested keys" do
+    config_key = "key/name/2"
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    expect(key.config_name).to eq(config_key)
+
+    config_key = "milling/nets_success_rate.json/21/everest-unknown"
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    expect(key.config_name).to eq(config_key)
+    expect(key.config_key).to eq('milling_nets_success_rate_json_21_everest_unknown'.to_sym)
+  end
+
   it 'on deletion it also removes any related entry' do
-    key_name = "key/name/1981"
-    key = ProductTechSpecsKey.create(key_name: key_name, display_name: key_name)
+    config_key = "key/name/1981"
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
     product = Product.find_by_name("Product 1")
-    product.tech_specs << { "#{key_name}" => "nurse" }
+    product.tech_specs << { "#{config_key}" => "nurse" }
     product.save
-    
+
     expect{ key.destroy }.to change{ ProductTechSpecsEntry.count }.by(-1)
   end
 end
@@ -59,9 +69,9 @@ describe "EavHash/EavEntry" do
     let (:p1) { Product.find_by_name("Product 1") }
     let (:p2) { Product.find_by_name("Product 2") }
     let (:p3) { Product.find_by_name("Product 3") }
-    
-    let (:key1) { ProductTechSpecsKey.find_by_key_name("first_name") }
-    let (:key2) { ProductTechSpecsKey.find_by_key_name("last_name") }
+
+    let (:key1) { ProductTechSpecsKey.find_by_config_key("first_name") }
+    let (:key2) { ProductTechSpecsKey.find_by_config_key("last_name") }
 
     it "deletes an EAV row when its value is set to nil" do
       p3_id = p3.id
@@ -71,7 +81,7 @@ describe "EavHash/EavEntry" do
         p3_pulled = Product.find_by_id(p3_id)
         expect(p3_pulled.tech_specs.keys.length).to eq(0)
     end
-    
+
     it 'test' do
       p4 = Product.new(name: "TestProduct")
       p4.tech_specs << {"test/key" => "Blah"}
@@ -79,7 +89,7 @@ describe "EavHash/EavEntry" do
       p4.tech_specs << {a_string: "Blah2"}
       p4.save
     end
-    
+
     it "ensures that keys are already defined" do
       p4 = Product.create(name: "Tester")
       p4.tech_specs << { first_name: "Kermit", last_name: "Frog" }
@@ -92,15 +102,15 @@ describe "EavHash/EavEntry" do
       p4 = Product.new(name: "Tester")
       p4.tech_specs << {first_name: "Jon", last_name: "Snow"}
       p4.save!
-      
+
       pt4 = ProductTechSpecsEntry.last
-      
+
       p4.tech_specs << {last_name: "Stark"}
       p4.save!
-      
+
       expect(pt4.versions.count).to eq(2)
     end
-    
+
     it "is able to search for all models whose hashes contain a specified key" do
         expect(Product.find_by_tech_specs("A String").length).to eq(2)
 
@@ -221,7 +231,7 @@ describe "EavHash/EavEntry" do
             expect(lambda { Product.find_by_tech_specs("An Array", ["blue", 42, :flux_capacitor]) }).to raise_error()
         end
     end
-    
+
     describe "enumerable" do
         it "each gives an enumerator" do
             expect(p1.tech_specs.each).to be_instance_of(Enumerator)

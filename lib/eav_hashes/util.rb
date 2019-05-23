@@ -68,7 +68,7 @@ module ActiveRecord
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_table_name]}"
-          validates :key_name, uniqueness: true, presence: true
+          validates :config_key, uniqueness: true, presence: true
           validates :display_name, presence: true
           before_validation :prepare_key
           has_many :#{options[:entry_assoc_name]}, 
@@ -77,14 +77,14 @@ module ActiveRecord
             dependent: :delete_all
 
           def prepare_key
-            return if key_name.nil?
-            self.original_name = key_name.to_s.gsub(' ', '_')
-            placeholder = Util.clean_up_key(key_name)
-            self.key_name = placeholder
+            return if config_key.nil?
+            self.config_name = config_key.to_s.gsub(' ', '_')
+            placeholder = Util.clean_up_key(config_key)
+            self.config_key = placeholder
           end
           
-          def key_name
-             super.to_sym
+          def config_key
+             super.to_s.to_sym
           end
         END_EVAL
 
@@ -146,7 +146,7 @@ module ActiveRecord
           attr_readonly :#{options[:key_assoc_name]}_id
     
           def key
-            k = #{options[:key_class]}.find(read_attribute(:#{options[:key_assoc_name]}_id)).key_name
+            k = #{options[:key_class]}.find(read_attribute(:#{options[:key_assoc_name]}_id)).config_key
           end
     
           # Raises an error if you try changing the key (unless no key is set)
@@ -170,7 +170,7 @@ module ActiveRecord
       def self.run_find_expression (key, value, options)
         sanity_check options
         raise "Can't search for a nil key!" if key.nil?
-        key_id = options[:key_class].find_by(key_name: Util.clean_up_key(key)).id
+        key_id = options[:key_class].find_by(config_key: Util.clean_up_key(key)).id
         if value.nil?
           options[:entry_class].where(
               "#{options[:key_assoc_name]}_id = ?",

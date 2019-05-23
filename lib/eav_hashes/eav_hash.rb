@@ -30,7 +30,7 @@ module ActiveRecord
       # Gets the value of an EAV attribute
       # @param [String, Symbol] key
       def [](key)
-        key = @options[:key_class].find_by(key_name: Util.clean_up_key(key)).key_name
+        key = @options[:key_class].find_by(config_key: Util.clean_up_key(key)).config_key
         load_entries_if_needed
         return @entries[key].value if @entries[key]
         nil
@@ -126,16 +126,16 @@ module ActiveRecord
       def update_or_create_entry(key, value)
         raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
         load_entries_if_needed
-        
-        key_object = @options[:key_class].find_by(key_name: Util.clean_up_key(key))
+
+        key_object = @options[:key_class].find_by(config_key: Util.clean_up_key(key))
 
         key_id = key.nil? ? nil : key_object.id
 
         @changes_made = true
         @owner.updated_at = Time.now
-        
-        if key && @entries[key_object.key_name]
-          @entries[key_object.key_name].value = value
+
+        if key && @entries[key_object.config_key]
+          @entries[key_object.config_key].value = value
         else
           new_entry = @options[:entry_class].new
           set_entry_owner(new_entry)
@@ -168,10 +168,10 @@ module ActiveRecord
 
         provided_keys = data.keys
 
-        existing_keys = @options[:key_class].pluck(:key_name,:id)
-        existing_key_names = existing_keys.map {|x| x[0].to_sym}
+        existing_keys = @options[:key_class].pluck(:config_key,:id)
+        existing_config_keys = existing_keys.map {|x| x[0].to_sym}
 
-        missing_keys = (provided_keys - existing_key_names)
+        missing_keys = (provided_keys - existing_config_keys)
         raise "Keys must already have been defined. Missing Keys: #{missing_keys}" unless missing_keys.empty?
       end
 
