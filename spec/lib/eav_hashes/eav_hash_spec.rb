@@ -82,6 +82,14 @@ describe "EavHash/EavEntry" do
         expect(p3_pulled.tech_specs.keys.length).to eq(0)
     end
 
+    it 'EavEntry#key_name' do
+      p4 = Product.new(name: "TestProduct")
+      p4.tech_specs << {"test/key" => "Blah"}
+      p4.save
+      entry = ProductTechSpecsEntry.last
+      expect(entry.key_name).to eq("test/key")
+    end
+
     it "ensures that keys are already defined" do
       p4 = Product.create(name: "Tester")
       p4.tech_specs << { first_name: "Kermit", last_name: "Frog" }
