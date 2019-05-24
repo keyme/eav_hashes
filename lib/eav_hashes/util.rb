@@ -149,6 +149,10 @@ module ActiveRecord
             k = #{options[:key_class]}.find(read_attribute(:#{options[:key_assoc_name]}_id)).config_key
           end
     
+          def key_name
+            k = #{options[:key_class]}.find(read_attribute(:#{options[:key_assoc_name]}_id)).config_name
+          end
+    
           # Raises an error if you try changing the key (unless no key is set)
           def key= (val)
             raise "Keys are immutable!" if read_attribute(:#{options[:key_assoc_name]}_id)
