@@ -125,17 +125,14 @@ describe "EavHash/EavEntry" do
 
     describe "preserves types between serialization and deserialization" do
         it "preserves String value types" do
-#            p1.tech_specs["A String"].should be_a_kind_of String
             expect(p1.tech_specs["A String"]).to be_a_kind_of String
         end
 
         it "preserves Symbol value types" do
-#            p1.tech_specs["A Symbol"].should be_a_kind_of Symbol
             expect(p1.tech_specs["A Symbol"]).to be_a_kind_of Symbol
         end
 
         it "preserves Integer/Bignum/Fixnum value types" do
-#            p1.tech_specs["A Number"].should be_a_kind_of Integer
             expect(p1.tech_specs["A Number"]).to be_a_kind_of Integer
         end
 

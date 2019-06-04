@@ -6,10 +6,13 @@ eav_hashes
 `eav_hashes` is a neato gem for implementing the EAV (entity-attribute-value)
 database design pattern in your Rails models. All you need to do is add one
 line to your model's code and that's it! Schema generation is automatically
-handled for you. This fork also adds some features and changes a bit of functionality
-from the original gem.  Firstly we are now tracking data changes by using the 
-paper_trail gem.  Secondly we are limiting the entry key functionality.  We are now
-implenting a key table to serve as a whitelist.
+handled for you.
+
+What is new in this fork?
+- 
+- Keys are now being defaulted to symbols instead of being symbols or strings.
+- Keys are now whitelisted into a separate class and must be included in that class to be valid.
+- We are using the PaperTrail gem to keep track of versions
 
 Why would I need it?
 -
