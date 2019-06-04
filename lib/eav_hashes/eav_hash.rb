@@ -134,7 +134,7 @@ module ActiveRecord
         @changes_made = true
         @owner.updated_at = Time.now
 
-        if key && @entries[key_object.config_key]
+        if key_object && @entries[key_object.config_key]
           @entries[key_object.config_key].value = value
         else
           new_entry = @options[:entry_class].new
