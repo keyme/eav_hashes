@@ -3,7 +3,8 @@ class <%= key_migration_name %> < ActiveRecord::Migration
     create_table :<%= key_table_name %> do |t|
       t.string :config_key, null: false, uniqueness: true
       t.string :display_name, null: false
-      t.string :config_name, null: false
+      t.string :config_name
+, null: false
       t.text :description
       t.boolean :enabled, null: false, :default => true
 

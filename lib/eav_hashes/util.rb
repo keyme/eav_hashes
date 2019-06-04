@@ -171,6 +171,9 @@ module ActiveRecord
       # @param [String, Symbol] key the key to search by
       # @param [Object] value the value to search by. if this is nil, it will return all models which contain `key`
       # @param [Hash] options the options hash which eav_hash_for hash generated.
+      # #
+      # #
+      # We are using key objects instead of just strings or symbols so we need to find the proper key object first
       def self.run_find_expression (key, value, options)
         sanity_check options
         raise "Can't search for a nil key!" if key.nil?

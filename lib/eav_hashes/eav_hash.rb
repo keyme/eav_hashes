@@ -124,12 +124,12 @@ module ActiveRecord
 
     private
       def update_or_create_entry(key, value)
-        raise "Key must be a string or a symbol!" unless key.is_a?(String) or key.is_a?(Symbol)
+        raise "Key must be a symbol!" unless key.is_a?(Symbol)
         load_entries_if_needed
 
         key_object = @options[:key_class].find_by(config_key: Util.clean_up_key(key))
 
-        key_id = key.nil? ? nil : key_object.id
+        key_id = key_object.try(:id)
 
         @changes_made = true
         @owner.updated_at = Time.now
