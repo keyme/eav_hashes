@@ -137,7 +137,7 @@ module ActiveRecord
 
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
-          has_paper_trail class_name: #{options[:version_class_name]}
+          has_paper_trail class_name: '#{options[:version_class_name]}'
           self.table_name = "#{options[:table_name]}"
           belongs_to :#{options[:parent_assoc_name]}
           belongs_to :#{options[:key_assoc_name]}
