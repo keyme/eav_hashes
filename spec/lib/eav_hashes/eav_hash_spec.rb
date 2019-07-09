@@ -73,13 +73,13 @@ describe "EavHash/EavEntry" do
     let (:key1) { ProductTechSpecsKey.find_by_config_key("first_name") }
     let (:key2) { ProductTechSpecsKey.find_by_config_key("last_name") }
 
-    it "deletes an EAV row when its value is set to nil" do
+    it "does NOT delete an EAV row when its value is set to nil" do
       p3_id = p3.id
         p3.tech_specs[:delete_me] = nil
         p3.save!
 
         p3_pulled = Product.find_by_id(p3_id)
-        expect(p3_pulled.tech_specs.keys.length).to eq(0)
+        expect(p3_pulled.tech_specs.keys.length).not_to eq(0)
     end
 
     it 'EavEntry#key_name' do

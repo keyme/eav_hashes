@@ -18,12 +18,8 @@ module ActiveRecord
         return unless (@entries and @changes_made)
 
         @entries.values.each do |entry|
-          if entry.value.nil?
-            entry.delete
-          else
-            set_entry_owner(entry)
-            entry.save
-          end
+          set_entry_owner(entry)
+          entry.save
         end
       end
 
