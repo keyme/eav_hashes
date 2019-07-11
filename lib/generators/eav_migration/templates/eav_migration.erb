@@ -3,7 +3,7 @@ class <%= migration_name %> < ActiveRecord::Migration
     create_table :<%= table_name %> do |t|
       t.references :<%= model_association_name %>, :null => false
       t.references :<%= key_model_association_name %>, :null => false
-      t.text :value, :null => false
+      t.text :value
       t.integer :value_type, :null => false
 
       t.timestamps

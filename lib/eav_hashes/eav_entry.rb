@@ -27,14 +27,14 @@ module ActiveRecord
           :Boolean    => 6, # For code readability
           :TrueClass  => 6,
           :FalseClass => 6,
-          :Object     => 7 # anything else (including Hashes, Arrays) will be serialized to yaml and saved as Object
+          :NilClass => 7,
+          :Object     => 8 # anything else (including Hashes, Arrays) will be serialized to yaml and saved as Object
       }
 
       # Does some sanity checks.
       def after_initialize
         raise "key should be a string or symbol!" unless key.is_a? String or key.is_a? Symbol
         raise "value should not be empty!" if @value.is_a? String and value.empty?
-        raise "value should not be nil!" if @value.nil?
       end
 
       # Gets the EAV row's value
@@ -46,13 +46,12 @@ module ActiveRecord
       # Sets the EAV row's value
       # @param [Object] val the value
       def value= (val)
-        @value = (val.nil? ? NilPlaceholder.new : val)
+        @value = val
       end
 
       # Gets the value_type column's value for the type of value passed
       # @param [Object] val the object whose value_type to determine
       def self.get_value_type (val)
-        return nil if val.nil?
         ret = SUPPORTED_TYPES[val.class.name.to_sym]
         if ret.nil?
           ret = SUPPORTED_TYPES[:Object]
@@ -70,7 +69,6 @@ module ActiveRecord
       def serialize_value
         # Returning nil will prevent the row from being saved, to save some time since the EavHash that manages this
         # entry will have marked it for deletion.
-        raise "Tried to save with a nil value!" if @value.nil? or @value.is_a? NilPlaceholder
 
         update_value_type
         if value_type == SUPPORTED_TYPES[:Object]
@@ -103,6 +101,8 @@ module ActiveRecord
             @value = Rational @value
           when SUPPORTED_TYPES[:Boolean]
             @value = (@value == "true")
+          when SUPPORTED_TYPES[:NilClass]
+            @value = nil
           else
             @value
         end

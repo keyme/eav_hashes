@@ -80,6 +80,7 @@ describe "EavHash/EavEntry" do
 
         p3_pulled = Product.find_by_id(p3_id)
         expect(p3_pulled.tech_specs.keys.length).not_to eq(0)
+      expect(p3.tech_specs[:delete_me]).to be_nil
     end
 
     it 'EavEntry#key_name' do
