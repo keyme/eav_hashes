@@ -46,7 +46,7 @@ module ActiveRecord
       # Sets the EAV row's value
       # @param [Object] val the value
       def value= (val)
-        @value = (val.nil? ? NilPlaceholder.new : val)
+        @value = (val.nil? ? 'None' : val)
       end
 
       # Gets the value_type column's value for the type of value passed

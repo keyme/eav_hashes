@@ -18,6 +18,7 @@ module ActiveRecord
         return unless (@entries and @changes_made)
 
         @entries.values.each do |entry|
+          entry.value = 'None' if entry.value.nil?
           set_entry_owner(entry)
           entry.save
         end
