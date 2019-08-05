@@ -78,7 +78,7 @@ module ActiveRecord
 
           def prepare_key
             return if config_key.nil?
-            self.config_name = config_key.to_s.gsub(' ', '_')
+            self.config_name ||= config_key.to_s.gsub(' ', '_')
             placeholder = Util.clean_up_key(config_key)
             self.config_key = placeholder
           end
