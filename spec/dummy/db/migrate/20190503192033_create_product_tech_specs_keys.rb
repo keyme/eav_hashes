@@ -7,6 +7,7 @@ class CreateProductTechSpecsKeys < ActiveRecord::Migration[5.0]
 			t.string :config_name
 			t.text :description
 			t.boolean :enabled
+			t.boolean :visible
 
 			t.timestamps
 		end
