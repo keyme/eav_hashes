@@ -12,5 +12,6 @@ class <%= key_migration_name %> < ActiveRecord::Migration
       t.timestamps
     end
     add_index :<%= key_table_name %>, :config_key, unique: true
+    add_index :<%= key_table_name %>, :slug, unique: true
   end
 end
