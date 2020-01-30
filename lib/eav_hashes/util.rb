@@ -69,6 +69,7 @@ module ActiveRecord
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_table_name]}"
           validates :config_key, uniqueness: true, presence: true
+          validates :slug, uniqueness: true, presence: true
           validates :display_name, presence: true
           before_validation :prepare_key
           has_many :#{options[:entry_assoc_name]}, 
@@ -80,6 +81,9 @@ module ActiveRecord
             return if config_key.nil?
             self.config_name ||= config_key.to_s.gsub(' ', '_')
             placeholder = Util.clean_up_key(config_key)
+            puts "self.config_name"
+            puts self.config_name
+            self.slug ||= self.config_name.split('/').last.try(:underscore)
             self.config_key = placeholder
           end
           

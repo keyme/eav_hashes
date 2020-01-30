@@ -18,6 +18,11 @@ describe ProductTechSpecsKey, type: :model do
     expect(new_key).not_to be_valid
   end
 
+  it "ensured presence of slug" do
+    new_key = ProductTechSpecsKey.new(config_key: 'key', display_name: 'key', slug: nil)
+    expect(new_key).not_to be_valid
+  end
+
   it "converts keys to symbols" do
     config_key = "KeyName"
     key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
@@ -28,6 +33,12 @@ describe ProductTechSpecsKey, type: :model do
       config_key = "KeyMe/Test Card"
       key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
       expect(key.config_key).to eq(:key_me_test_card)
+  end
+
+  it "properly sets the slug" do
+      config_key = "KeyMe/American Express/Test Card"
+      key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+      expect(key.slug).to eq("test_card")
   end
 
   it "preserves the original format of the key" do
