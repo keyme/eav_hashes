@@ -13,6 +13,8 @@ class EavMigrationGenerator < ActiveRecord::Generators::Base
     
     p "#{name} Key"
     migration_template "eav_key_migration.erb", "db/migrate/#{key_migration_file_name}.rb"
+    p "#{name} Key Tag"
+    migration_template "eav_key_tag_migration.erb", "db/migrate/#{key_tag_migration_file_name}.rb"
     p "#{name} Versions, version_migration_file_name: #{version_migration_file_name}"
     migration_template "version_migration.erb", "db/migrate/#{version_migration_file_name}.rb"
     p name
@@ -21,6 +23,10 @@ class EavMigrationGenerator < ActiveRecord::Generators::Base
 
   def key_migration_file_name
     "create_" + key_table_name
+  end
+
+  def key_tag_migration_file_name
+    "create_" + key_tag_table_name
   end
 
   def migration_file_name
@@ -39,6 +45,10 @@ class EavMigrationGenerator < ActiveRecord::Generators::Base
     key_migration_file_name.camelize
   end
 
+  def key_tag_migration_name
+    key_tag_migration_file_name.camelize
+  end
+
   def version_migration_name
     version_migration_file_name.camelize
   end
@@ -49,6 +59,10 @@ class EavMigrationGenerator < ActiveRecord::Generators::Base
 
   def key_table_name
     "#{custom_table_name || "#{name}_#{hash_name}".underscore.gsub(/\//, '_')}_keys"
+  end
+
+  def key_tag_table_name
+    "#{custom_table_name || "#{name}_#{hash_name}".underscore.gsub(/\//, '_')}_key_tags"
   end
 
   def version_table_name

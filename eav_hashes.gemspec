@@ -25,5 +25,6 @@ Gem::Specification.new do |s|
 #  s.add_dependency "rails", "~> 3.2.7"
   s.add_dependency "rails", ">= 3.2.7"
   s.add_dependency "paper_trail", "= 8.1.2"
+  s.add_dependency 'friendly_id', '~> 5.2.4'
   s.add_development_dependency "sqlite3"
 end
