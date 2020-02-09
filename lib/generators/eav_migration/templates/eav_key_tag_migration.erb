@@ -7,18 +7,19 @@ class <%= key_tag_migration_name %> < ActiveRecord::Migration
       t.text :description
       t.boolean :enabled, null: false, :default => true
       t.boolean :visible, null: false, :default => false
+      t.boolean :conifigurable, null: false, :default => false
 
       t.timestamps
     end
     add_index :<%= key_table_name %>, :config_key, unique: true
 
-    create_table :apples_oranges, :id => false do |t|
-      t.references :apple, :null => false
-      t.references :orange, :null => false
+    create_table :<%= [key_tag_table_name, key_table_name].sort.join("_") %>, :id => false do |t|
+      t.references :<%= key_tag_table_name.singularize %>, :null => false
+      t.references :<%= key_table_name.singularize  %>, :null => false
     end
 
     # Adding the index can massively speed up join tables. Don't use the
     # unique if you allow duplicates.
-    add_index(:apples_oranges, [:apple_id, :orange_id], :unique => true)
+    add_index(:<%= [key_tag_table_name, key_table_name].sort.join("_") %>, [:<%= key_tag_table_name.singularize %>_id, :<%= key_table_name.singularize %>_id], :unique => true)
   end
 end
