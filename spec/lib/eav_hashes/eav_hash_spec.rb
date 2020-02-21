@@ -41,6 +41,13 @@ describe ProductTechSpecsKey, type: :model do
       expect(key.slug).to eq("test_card")
   end
 
+  it 'ensures uniqueness of the slug' do
+    config_key = "KeyMe/American Express/Test Card"
+    ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)
+    expect(key.valid?).to eq(false)
+  end
+
   it "preserves the original format of the key" do
       config_key = "Key/Name"
       key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)

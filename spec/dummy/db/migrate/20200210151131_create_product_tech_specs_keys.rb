@@ -1,6 +1,6 @@
-class <%= key_migration_name %> < ActiveRecord::Migration
+class CreateProductTechSpecsKeys < ActiveRecord::Migration[5.0]
   def change
-    create_table :<%= key_table_name %> do |t|
+    create_table :product_tech_specs_keys do |t|
       t.string :config_key, null: false, uniqueness: true
       t.string :display_name, null: false
       t.string :config_name, null: false
@@ -11,7 +11,6 @@ class <%= key_migration_name %> < ActiveRecord::Migration
 
       t.timestamps
     end
-    add_index :<%= key_table_name %>, :config_key, unique: true
-    add_index :<%= key_table_name %>, :slug, unique: true
+    add_index :product_tech_specs_keys, :config_key, unique: true
   end
 end

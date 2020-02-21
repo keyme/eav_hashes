@@ -81,8 +81,6 @@ module ActiveRecord
             return if config_key.nil?
             self.config_name ||= config_key.to_s.gsub(' ', '_')
             placeholder = Util.clean_up_key(config_key)
-            puts "self.config_name"
-            puts self.config_name
             self.slug ||= self.config_name.split('/').last.try(:underscore)
             self.config_key = placeholder
           end
