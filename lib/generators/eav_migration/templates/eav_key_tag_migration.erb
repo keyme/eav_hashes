@@ -2,24 +2,18 @@ class <%= key_tag_migration_name %> < ActiveRecord::Migration
   def change
     create_table :<%= key_tag_table_name %> do |t|
       t.string :name, null: false, uniqueness: true
-      t.string :display_name, null: false
-      t.string :config_name, null: false
       t.text :description
-      t.boolean :enabled, null: false, :default => true
-      t.boolean :visible, null: false, :default => false
-      t.boolean :conifigurable, null: false, :default => false
 
       t.timestamps
     end
-    add_index :<%= key_table_name %>, :config_key, unique: true
 
     create_table :<%= [key_tag_table_name, key_table_name].sort.join("_") %>, :id => false do |t|
-      t.references :<%= key_tag_table_name.singularize %>, :null => false
-      t.references :<%= key_table_name.singularize  %>, :null => false
+      t.references :<%= key_tag_table_name.singularize %>, null: false, index: { name: 'tag' }
+      t.references :<%= key_table_name.singularize  %>, null: false, index: { name: 'key' }
     end
 
     # Adding the index can massively speed up join tables. Don't use the
     # unique if you allow duplicates.
-    add_index(:<%= [key_tag_table_name, key_table_name].sort.join("_") %>, [:<%= key_tag_table_name.singularize %>_id, :<%= key_table_name.singularize %>_id], :unique => true)
+    add_index(:<%= [key_tag_table_name, key_table_name].sort.join("_") %>, [:<%= key_tag_table_name.singularize %>_id, :<%= key_table_name.singularize %>_id], name: "join_key_key_tag", unique: true)
   end
 end

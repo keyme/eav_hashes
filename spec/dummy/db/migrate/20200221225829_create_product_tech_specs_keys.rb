@@ -12,5 +12,6 @@ class CreateProductTechSpecsKeys < ActiveRecord::Migration[5.0]
       t.timestamps
     end
     add_index :product_tech_specs_keys, :config_key, unique: true
+    add_index :product_tech_specs_keys, :slug, unique: true
   end
 end
