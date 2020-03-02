@@ -16,6 +16,7 @@ module ActiveRecord
         # Generate a unique class name based on the eav_hash's name and owner
         options[:entry_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name]}_entry".camelize.to_sym
         options[:key_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key".camelize.to_sym
+        options[:key_tag_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name].to_s}_key_tag".camelize.to_sym
         options[:paper_trail_abstract_class] ||= "PaperTrail::Version".camelize.to_sym
         options[:version_class_name] ||= "#{options[:parent_class_name]}_#{options[:hash_name]}_version".camelize.to_sym
 
@@ -36,6 +37,12 @@ module ActiveRecord
         # Create the symbol name for the "belongs_to" association in the entry key model
         options[:key_assoc_name] ||= "#{options[:key_class_name].to_s.underscore}".to_sym
 
+        # Create the symbol name for the "has_and_belongs_to_many" association in the entry key model
+        options[:key_tag_assoc_name] ||= "#{options[:key_tag_class_name].to_s.underscore}".tableize.to_sym
+
+        # Create the symbol name for the "has_and_belongs_to_many" association in the entry key_tag model
+        options[:key_many_assoc_name] ||= "#{options[:key_class_name].to_s.underscore}".tableize.to_sym
+
         # Create the symbol name for the "has_many" association in the parent model
         options[:entry_assoc_name] = options[:entry_class_name].to_s.tableize.to_sym
 
@@ -44,10 +51,13 @@ module ActiveRecord
         options[:table_name] = options[:table_name].to_s.gsub(/\//,'_').to_sym
         options[:parent_assoc_name] = options[:parent_assoc_name].to_s.gsub(/\//,'_').to_sym
         options[:key_assoc_name] = options[:key_assoc_name].to_s.gsub(/\//,'_').to_sym
+        options[:key_tag_assoc_name] = options[:key_tag_assoc_name].to_s.gsub(/\//,'_').to_sym
+        options[:key_many_assoc_name] = options[:key_many_assoc_name].to_s.gsub(/\//,'_').to_sym
         options[:entry_assoc_name] = options[:entry_assoc_name].to_s.gsub(/\//,'_').to_sym
 
         # Create our custom type if it doesn't exist already
         options[:key_class] = create_eav_key_class options
+        options[:key_tag_class] = create_eav_key_tag_class options
         options[:paper_trail_class] = create_paper_trail_abstract_class options
         options[:version_class] = create_eav_version_class options
         options[:entry_class] = create_eav_table_class options
@@ -72,10 +82,43 @@ module ActiveRecord
           validates :slug, uniqueness: true, presence: true
           validates :display_name, presence: true
           before_validation :prepare_key
+          has_and_belongs_to_many :#{options[:key_tag_assoc_name]}
           has_many :#{options[:entry_assoc_name]}, 
             class_name: "#{options[:entry_class_name]}", 
             foreign_key: "#{options[:key_assoc_name]}_id", 
             dependent: :delete_all
+
+          def prepare_key
+            return if config_key.nil?
+            self.config_name ||= config_key.to_s.gsub(' ', '_')
+            placeholder = Util.clean_up_key(config_key)
+            self.slug ||= self.config_name.split('/').last.try(:underscore)
+            self.config_key = placeholder
+          end
+          
+          def config_key
+             super.to_s.to_sym
+          end
+        END_EVAL
+
+        return klass
+      end
+
+      # Creates a new type subclassed from ActiveRecord:::EavEntry which represents an eav_hash key-value pair
+      def self.create_eav_key_tag_class (options)
+        sanity_check options
+
+        # Don't overwrite an existing type
+        return class_from_string(options[:key_tag_class_name].to_s) if class_from_string_exists?(options[:key_tag_class_name])
+
+        # Create our type
+        klass = set_constant_from_string options[:key_tag_class_name].to_s, Class.new(ActiveRecord::Base)
+
+        # Fill in the associations and specify the table it belongs to
+        klass.class_eval <<-END_EVAL
+          self.table_name = "#{options[:key_tag_table_name]}"
+          
+          has_and_belongs_to_many :#{options[:key_many_assoc_name]}
 
           def prepare_key
             return if config_key.nil?
