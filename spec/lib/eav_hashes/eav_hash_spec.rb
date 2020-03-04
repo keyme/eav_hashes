@@ -23,6 +23,15 @@ describe ProductTechSpecsKey, type: :model do
     expect(new_key).not_to be_valid
   end
 
+  it 'maintains uniqueness of slug' do
+    key1 = ProductTechSpecsKey.create(config_key: 'group1/test/keys', display_name: 'keys')
+    expect(key1.slug).to eq("keys")
+    key2 = ProductTechSpecsKey.create(config_key: 'group1/jim/keys', display_name: 'keys')
+    expect(key2.slug).to eq("jim_keys")
+    key3 = ProductTechSpecsKey.create(config_key: 'group2/jim/keys', display_name: 'keys')
+    expect(key3.slug).not_to eq("group_2jim_keys")
+  end
+
   it "converts keys to symbols" do
     config_key = "KeyName"
     key = ProductTechSpecsKey.create(config_key: config_key, display_name: config_key)

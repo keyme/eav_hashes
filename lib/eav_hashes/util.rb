@@ -93,16 +93,15 @@ module ActiveRecord
             return if config_key.nil?
             self.config_name ||= config_key.to_s.gsub(' ', '_')
             placeholder = Util.clean_up_key(config_key)
-            provisional_slug = self.config_name.split('/').last.try(:underscore)
-            if #{klass}.find_by(slug: provisional_slug)
-              self.slug ||= self.config_name.split('/',2).last.try(:underscore)
-            else
-              self.slug ||= self.config_name.split('/').last.try(:underscore)
+            possible_slugs = self.config_name.split('/')
+            provisional_slug = nil
+            until possible_slugs.empty?
+              provisional_slug = [possible_slugs.pop, provisional_slug].compact.join("_")
+              break unless #{klass}.find_by(slug: provisional_slug)
             end
+            self.slug ||= provisional_slug
             self.config_key = placeholder
           end
-          
-          
           def config_key
              super.to_s.to_sym
           end
