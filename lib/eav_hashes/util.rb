@@ -122,11 +122,16 @@ module ActiveRecord
         klass = set_constant_from_string options[:key_tag_class_name].to_s, Class.new(ActiveRecord::Base)
 
         # Fill in the associations and specify the table it belongs to
-        puts "klass.class_eval: #{klass}"
         klass.class_eval <<-END_EVAL
           self.table_name = "#{options[:key_tag_table_name]}"
           
           has_and_belongs_to_many :"#{options[:key_many_assoc_name]}", join_table: "#{options[:key_tag_table_name]}_#{options[:key_table_name]}"
+
+          has_many :#{options[:entry_assoc_name]}, 
+            class_name: "#{options[:entry_class_name]}", 
+            foreign_key: "#{options[:key_assoc_name]}_id", 
+            through: "#{options[:key_many_assoc_name]}",
+            dependent: :delete_all
         END_EVAL
 
         return klass
