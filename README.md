@@ -134,6 +134,16 @@ migration generator:
     $ rails generate eav_migration Widget foobar bar_foo
 
 
+What if I don't want a version history?
+--
+You can change this by passing `false` to the `:use_versioning` argument:
+
+```ruby
+class Widget < ActiveRecord::Base
+    eav_hash_for :foobar, use_versioning: false
+end
+```
+
 What's the catch?
 -
 By using this software, you agree to write me into your will as your next of

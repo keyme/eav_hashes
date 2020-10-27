@@ -158,6 +158,11 @@ module ActiveRecord
 
         # Don't overwrite an existing type
         #
+        # NOTE: This does not work because class_from_string_exists? expects a string not a symbol
+        # IF you want it to work, replace it with the commented line below; WARNING: it's not fully
+        # tested, hence why it's still commented out.  At a minimum your existing class needs to
+        # include the PaperTrail::Version concern.
+        # return class_from_string(options[:version_class_name].to_s) if class_from_string_exists?(options[:version_class_name].to_s)
         return class_from_string(options[:version_class_name].to_s) if class_from_string_exists?(options[:version_class_name])
 
         # Create our type
@@ -176,6 +181,11 @@ module ActiveRecord
         sanity_check options
 
         # Don't overwrite an existing type
+        #
+        # NOTE: This does not work because class_from_string_exists? expects a string not a symbol
+        # IF you want it to work, replace it with the commented line below; WARNING: it's not fully
+        # tested, hence why it's still commented out.
+        # return class_from_string(options[:entry_class_name].to_s) if class_from_string_exists?(options[:entry_class_name].to_s)
         return class_from_string(options[:entry_class_name].to_s) if class_from_string_exists?(options[:entry_class_name])
 
         # Create our type
@@ -183,7 +193,7 @@ module ActiveRecord
 
         # Fill in the associations and specify the table it belongs to
         klass.class_eval <<-END_EVAL
-          has_paper_trail class_name: '#{options[:version_class_name]}'
+          has_paper_trail class_name: '#{options[:version_class_name]}' if #{options[:use_versioning]}
           self.table_name = "#{options[:table_name]}"
           belongs_to :#{options[:parent_assoc_name]}
           belongs_to :#{options[:key_assoc_name]}
